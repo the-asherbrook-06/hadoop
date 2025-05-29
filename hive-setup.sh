@@ -8,10 +8,10 @@ RED="\033[0;31m"
 NC="\033[0m"
 
 # Define Hive version and installation directory
-HIVE_VERSION="3.1.3"
+HIVE_VERSION="4.0.1"
 HIVE_HOME="$HOME/hive-$HIVE_VERSION"
 HIVE_ARCHIVE="apache-hive-$HIVE_VERSION-bin.tar.gz"
-HIVE_DOWNLOAD_URL="https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/$HIVE_ARCHIVE"
+HIVE_DOWNLOAD_URL="https://dlcdn.apache.org/hive/hive-$HIVE_VERSION/$HIVE_ARCHIVE"
 
 echo -e "${GREEN}📥 Downloading Apache Hive $HIVE_VERSION...${NC}"
 
