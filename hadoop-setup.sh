@@ -6,12 +6,11 @@ GREEN="\033[0;32m"
 RED="\033[0;31m"
 NC="\033[0m"
 
-# Ask user Hadoop version to download
+# 🛑 Prompt for Hadoop version
 read -p "Enter Hadoop version to install (e.g. 3.4.0): " HADOOP_VERSION
 HADOOP_HOME=$HOME/hadoop-$HADOOP_VERSION
 
 echo -e "${GREEN}📥 Downloading and extracting Hadoop $HADOOP_VERSION...${NC}"
-
 if [ -d "$HADOOP_HOME" ]; then
     echo "🔍 Hadoop already exists. Skipping download..."
 else
@@ -41,7 +40,13 @@ export HADOOP_OPTS="-Djava.library.path=\$HADOOP_HOME/lib/native"
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 EOL
 
-source ~/.bashrc
+# 🌟 Export env vars immediately for this session
+export HADOOP_HOME=$HADOOP_HOME
+export PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+echo -e "${GREEN}📌 Using HDFS from: $(which hdfs)${NC}"
+hdfs version
 
 echo -e "${GREEN}⚙️ Setting JAVA_HOME in hadoop-env.sh...${NC}"
 sed -i "s|^# export JAVA_HOME=.*|export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64|" $HADOOP_HOME/etc/hadoop/hadoop-env.sh
@@ -125,7 +130,10 @@ else
 fi
 
 echo -e "${GREEN}✅ Hadoop installation and configuration completed successfully!${NC}"
-echo "📋 To start Hadoop services: start-dfs.sh && start-yarn.sh"
-echo "📋 To verify: jps"
-echo "🌐 Hadoop UI: http://localhost:9870"
-echo "🌐 YARN UI: http://localhost:8088"
+echo -e "${GREEN}▶️ To start Hadoop services:${NC} run:"
+echo "   start-dfs.sh && start-yarn.sh"
+echo -e "${GREEN}🔍 To verify processes:${NC} run:"
+echo "   jps"
+echo -e "${GREEN}🌐 Web UIs:${NC}"
+echo "   NameNode: http://localhost:9870"
+echo "   YARN:     http://localhost:8088"
