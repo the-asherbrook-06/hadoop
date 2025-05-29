@@ -4,7 +4,7 @@
 PIG_VERSION="0.17.0"
 PIG_DIR="pig-$PIG_VERSION"
 PIG_TAR="$PIG_DIR.tar.gz"
-PIG_DOWNLOAD_URL="https://downloads.apache.org/pig/$PIG_VERSION/$PIG_TAR"
+PIG_DOWNLOAD_URL="https://archive.apache.org/dist/pig/$PIG_VERSION/$PIG_TAR"
 
 # Target installation directory
 INSTALL_DIR="/usr/local"
