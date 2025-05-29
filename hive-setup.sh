@@ -1,55 +1,73 @@
 #!/bin/bash
 
-# Variables (modify if needed)
+set -e
+
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+NC="\033[0m"
+
 HIVE_VERSION="3.1.3"
-HIVE_DOWNLOAD_URL="https://downloads.apache.org/hive/hive-${HIVE_VERSION}/apache-hive-${HIVE_VERSION}-bin.tar.gz"
-INSTALL_DIR="/usr/local"
-HIVE_HOME="${INSTALL_DIR}/hive"
-HADOOP_HOME="/usr/local/hadoop"  # Change this if your Hadoop is installed elsewhere
+HIVE_DIR="$HOME/hive-$HIVE_VERSION"
+HIVE_DOWNLOAD_URL="https://downloads.apache.org/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz"
 
-# Check if running as root for permission to write to /usr/local
-if [[ $EUID -ne 0 ]]; then
-  echo "Please run this script as root or with sudo."
-  exit 1
+echo -e "${GREEN}📥 Downloading Apache Hive $HIVE_VERSION...${NC}"
+
+if [ -d "$HIVE_DIR" ]; then
+    echo -e "${GREEN}✅ Hive already downloaded. Skipping...${NC}"
+else
+    wget "$HIVE_DOWNLOAD_URL" -O apache-hive-$HIVE_VERSION-bin.tar.gz
+    tar -xzf apache-hive-$HIVE_VERSION-bin.tar.gz
+    mv apache-hive-$HIVE_VERSION-bin "$HIVE_DIR"
 fi
 
-echo "Downloading Apache Hive $HIVE_VERSION..."
-wget $HIVE_DOWNLOAD_URL -O /tmp/apache-hive-${HIVE_VERSION}-bin.tar.gz
+echo -e "${GREEN}⚙️ Setting up environment variables...${NC}"
 
-if [ $? -ne 0 ]; then
-  echo "Download failed! Exiting."
-  exit 1
-fi
+grep -q "HIVE_HOME" ~/.bashrc || cat <<EOL >> ~/.bashrc
 
-echo "Extracting Hive..."
-tar -xzf /tmp/apache-hive-${HIVE_VERSION}-bin.tar.gz -C $INSTALL_DIR
-
-echo "Removing any existing Hive installation..."
-rm -rf $HIVE_HOME
-
-echo "Renaming extracted folder to $HIVE_HOME"
-mv ${INSTALL_DIR}/apache-hive-${HIVE_VERSION}-bin $HIVE_HOME
-
-echo "Setting environment variables in /etc/profile.d/hive.sh..."
-
-cat <<EOL > /etc/profile.d/hive.sh
-export HIVE_HOME=$HIVE_HOME
+# Hive Environment Variables
+export HIVE_HOME=$HIVE_DIR
 export PATH=\$PATH:\$HIVE_HOME/bin
-export HADOOP_HOME=$HADOOP_HOME
+export HADOOP_HOME=\$HOME/hadoop-3.4.0
 export PATH=\$PATH:\$HADOOP_HOME/bin
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 EOL
 
-chmod +x /etc/profile.d/hive.sh
+source ~/.bashrc
 
-echo "Sourcing environment variables..."
-source /etc/profile.d/hive.sh
+echo -e "${GREEN}📂 Creating Hive warehouse directories...${NC}"
+mkdir -p $HOME/hive/warehouse
+mkdir -p $HOME/hive/tmp
+mkdir -p $HOME/hive/logs
 
-echo "Copying hive-site.xml template..."
-cp $HIVE_HOME/conf/hive-default.xml.template $HIVE_HOME/conf/hive-site.xml
+echo -e "${GREEN}📝 Configuring Hive default settings...${NC}"
 
-echo "Initializing Hive schema with embedded Derby DB..."
-$HIVE_HOME/bin/schematool -initSchema -dbType derby
+cat > "$HIVE_DIR/conf/hive-site.xml" <<EOL
+<configuration>
+  <property>
+    <name>hive.exec.local.scratchdir</name>
+    <value>$HOME/hive/tmp</value>
+  </property>
+  <property>
+    <name>hive.exec.scratchdir</name>
+    <value>$HOME/hive/tmp</value>
+  </property>
+  <property>
+    <name>hive.metastore.warehouse.dir</name>
+    <value>$HOME/hive/warehouse</value>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:derby:;databaseName=metastore_db;create=true</value>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionDriverName</name>
+    <value>org.apache.derby.jdbc.EmbeddedDriver</value>
+  </property>
+</configuration>
+EOL
 
-echo "Hive installation complete!"
-echo "You can now run Hive using the command: hive"
+echo -e "${GREEN}🚀 Initializing Hive Metastore...${NC}"
+schematool -dbType derby -initSchema || echo -e "${RED}⚠️ Hive schema might already be initialized.${NC}"
 
+echo -e "${GREEN}✅ Hive setup complete!${NC}"
+echo "📋 To start Hive, run: hive"
