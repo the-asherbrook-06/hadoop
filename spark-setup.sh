@@ -6,7 +6,6 @@ GREEN="\033[0;32m"
 RED="\033[0;31m"
 NC="\033[0m"
 
-# 🔢 Prompt for Spark version
 read -p "Enter Spark version to install (e.g. 4.0.0): " SPARK_VERSION
 SPARK_HOME=$HOME/spark-$SPARK_VERSION
 
@@ -27,15 +26,16 @@ grep -q "SPARK_HOME" ~/.bashrc || cat <<EOL >> ~/.bashrc
 export SPARK_HOME=$SPARK_HOME
 export PATH=\$PATH:\$SPARK_HOME/bin:\$SPARK_HOME/sbin
 export PYSPARK_PYTHON=python3
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 EOL
 
-# 🌟 Export for current session
 export SPARK_HOME=$SPARK_HOME
 export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 echo -e "${GREEN}🚀 Verifying Spark installation...${NC}"
 spark-shell --version
 
+
+echo -e "${GREEN}✅ Using Java 17${NC}"
 echo -e "${GREEN}✅ Spark $SPARK_VERSION installation completed successfully!${NC}"
