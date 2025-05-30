@@ -6,7 +6,6 @@ GREEN="\033[0;32m"
 RED="\033[0;31m"
 NC="\033[0m"
 
-# 🛑 Prompt for Hadoop version
 read -p "Enter Hadoop version to install (e.g. 3.4.0): " HADOOP_VERSION
 HADOOP_HOME=$HOME/hadoop-$HADOOP_VERSION
 
@@ -37,23 +36,22 @@ export YARN_HOME=\$HADOOP_HOME
 export HADOOP_COMMON_LIB_NATIVE_DIR=\$HADOOP_HOME/lib/native
 export PATH=\$PATH:\$HADOOP_HOME/bin:\$HADOOP_HOME/sbin
 export HADOOP_OPTS="-Djava.library.path=\$HADOOP_HOME/lib/native"
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 EOL
 
-# 🌟 Export env vars immediately for this session
+# Export for current session
 export HADOOP_HOME=$HADOOP_HOME
 export PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 echo -e "${GREEN}📌 Using HDFS from: $(which hdfs)${NC}"
 hdfs version
 
 echo -e "${GREEN}⚙️ Setting JAVA_HOME in hadoop-env.sh...${NC}"
-sed -i "s|^# export JAVA_HOME=.*|export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64|" $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+sed -i "s|^# export JAVA_HOME=.*|export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64|" $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
 echo -e "${GREEN}📝 Configuring Hadoop XML files...${NC}"
 
-# core-site.xml
 cat > $HADOOP_HOME/etc/hadoop/core-site.xml <<EOL
 <configuration>
     <property>
@@ -67,7 +65,6 @@ cat > $HADOOP_HOME/etc/hadoop/core-site.xml <<EOL
 </configuration>
 EOL
 
-# hdfs-site.xml
 cat > $HADOOP_HOME/etc/hadoop/hdfs-site.xml <<EOL
 <configuration>
     <property>
@@ -85,7 +82,6 @@ cat > $HADOOP_HOME/etc/hadoop/hdfs-site.xml <<EOL
 </configuration>
 EOL
 
-# mapred-site.xml
 cat > $HADOOP_HOME/etc/hadoop/mapred-site.xml <<EOL
 <configuration>
     <property>
@@ -95,7 +91,6 @@ cat > $HADOOP_HOME/etc/hadoop/mapred-site.xml <<EOL
 </configuration>
 EOL
 
-# yarn-site.xml
 cat > $HADOOP_HOME/etc/hadoop/yarn-site.xml <<EOL
 <configuration>
     <property>
@@ -129,6 +124,7 @@ else
     echo -e "${RED}⚠️ Namenode formatting skipped.${NC}"
 fi
 
+echo -e "${GREEN}✅ Using Java 17$ form installation{NC}"
 echo -e "${GREEN}✅ Hadoop installation and configuration completed successfully!${NC}"
 echo -e "${GREEN}▶️ To start Hadoop services:${NC} run:"
 echo "   start-dfs.sh && start-yarn.sh"
