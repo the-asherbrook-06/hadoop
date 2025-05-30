@@ -15,7 +15,7 @@ echo -e "${GREEN}📥 Downloading Spark $SPARK_VERSION for Linux (Hadoop 3)...${
 if [ -d "$SPARK_HOME" ]; then
     echo -e "${GREEN}🔍 Spark already exists at $SPARK_HOME. Skipping download...${NC}"
 else
-    wget "https://downloads.apache.org/spark/spark-$SPARK_VERSION/$SPARK_TGZ" -O "$SPARK_TGZ"
+    wget "https://dlcdn.apache.org/spark/spark-$SPARK_VERSION/$SPARK_TGZ" -O "$SPARK_TGZ"
     tar -xzf "$SPARK_TGZ"
     mv "$SPARK_DIR_NAME" "$SPARK_HOME"
     rm "$SPARK_TGZ"
