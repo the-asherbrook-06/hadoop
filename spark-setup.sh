@@ -6,7 +6,7 @@ GREEN="\033[0;32m"
 RED="\033[0;31m"
 NC="\033[0m"
 
-read -p "Enter Spark version to install (e.g. 3.5.1): " SPARK_VERSION
+read -p "Enter Spark version to install (e.g. 3.5.6): " SPARK_VERSION
 SPARK_DIR_NAME="spark-$SPARK_VERSION-bin-hadoop3"
 SPARK_HOME="$HOME/spark-$SPARK_VERSION"
 SPARK_TGZ="$SPARK_DIR_NAME.tgz"
