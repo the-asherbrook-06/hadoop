@@ -6,21 +6,24 @@ GREEN="\033[0;32m"
 RED="\033[0;31m"
 NC="\033[0m"
 
-read -p "Enter Spark version to install (e.g. 4.0.0): " SPARK_VERSION
-SPARK_HOME=$HOME/spark-$SPARK_VERSION
+read -p "Enter Spark version to install (e.g. 3.5.1): " SPARK_VERSION
+SPARK_DIR_NAME="spark-$SPARK_VERSION-bin-hadoop3"
+SPARK_HOME="$HOME/spark-$SPARK_VERSION"
+SPARK_TGZ="$SPARK_DIR_NAME.tgz"
 
-echo -e "${GREEN}📥 Downloading and extracting Spark $SPARK_VERSION...${NC}"
+echo -e "${GREEN}📥 Downloading Spark $SPARK_VERSION for Linux (Hadoop 3)...${NC}"
 if [ -d "$SPARK_HOME" ]; then
-    echo "🔍 Spark already exists at $SPARK_HOME. Skipping download..."
+    echo -e "${GREEN}🔍 Spark already exists at $SPARK_HOME. Skipping download...${NC}"
 else
-    wget https://dlcdn.apache.org/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop3.tgz
-    tar -xzf spark-$SPARK_VERSION-bin-hadoop3.tgz
-    mv spark-$SPARK_VERSION-bin-hadoop3 $SPARK_HOME
-    rm spark-$SPARK_VERSION-bin-hadoop3.tgz
+    wget "https://downloads.apache.org/spark/spark-$SPARK_VERSION/$SPARK_TGZ" -O "$SPARK_TGZ"
+    tar -xzf "$SPARK_TGZ"
+    mv "$SPARK_DIR_NAME" "$SPARK_HOME"
+    rm "$SPARK_TGZ"
 fi
 
 echo -e "${GREEN}🌍 Configuring environment variables...${NC}"
-grep -q "SPARK_HOME" ~/.bashrc || cat <<EOL >> ~/.bashrc
+if ! grep -q "SPARK_HOME=$SPARK_HOME" ~/.bashrc; then
+    cat <<EOL >> ~/.bashrc
 
 # Spark Environment Variables
 export SPARK_HOME=$SPARK_HOME
@@ -28,14 +31,18 @@ export PATH=\$PATH:\$SPARK_HOME/bin:\$SPARK_HOME/sbin
 export PYSPARK_PYTHON=python3
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 EOL
+fi
 
+# Apply changes for current shell
 export SPARK_HOME=$SPARK_HOME
 export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
+export PYSPARK_PYTHON=python3
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 echo -e "${GREEN}🚀 Verifying Spark installation...${NC}"
-spark-shell --version
-
-
-echo -e "${GREEN}✅ Using Java 17${NC}"
-echo -e "${GREEN}✅ Spark $SPARK_VERSION installation completed successfully!${NC}"
+if command -v spark-shell &> /dev/null; then
+    spark-shell --version
+    echo -e "${GREEN}✅ Spark $SPARK_VERSION installed and ready on Ubuntu!${NC}"
+else
+    echo -e "${RED}❌ spark-shell not found in PATH. Something went wrong.${NC}"
+fi
