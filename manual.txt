@@ -1,0 +1,187 @@
+1. INSTALLATION OF HADOOP
+*************************
+
+AIM: To install hadoop on a single node user
+PROCEDURE:
+	STEP 1:	Update the sudo packages
+						sudo apt update -y
+	STEP 2: Install Java from a public script
+						bash <(curl -s https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/java-setup.sh)
+	STEP 3: Verify Java Installation
+						java -version
+						javac -version
+	STEP 4: Configure SSH from a public script
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/ssh-config.sh"
+						bash <(curl -s $URL)
+	STEP 5: Download Hadoop from Apache servers
+						wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz
+						tar -xzf hadoop-3.4.0
+						mv hadoop-3.4.0 $HOME/hadoop-3.4.0
+	STEP 6: Configure Hadoop from a public script
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/hadoop-setup.sh"
+						bash <(curl -s $URL)
+	STEP 7: Run Hadoop and check it by using the command
+						start-dfs
+						start-yarn
+						jps
+						
+RESULT: 
+Hadoop is sucessfully installed on Ubuntu for a single node user
+	
+	
+2. INSTALLING A DATASET INTO HDFS
+*********************************
+
+AIM: To install an Dataset into HDFS by using CLI
+PROCEDURE:
+	STEP 1: Start Hadoop and check its status by using the following commands
+					start-dfs
+					start-yarn
+					jps
+	STEP 2: Download an dataset from network
+					URL="//Dataset Path"
+					curl -s $URL
+	STEP 3: Create a directory in HDFS for Dataset
+					hdfs dfs -mkdir /dataset
+	STEP 4: Upload the Dataset into HDFS
+					hdfs dfs -put u.data /dataset
+	STEP 5: Verify the Dataset in HDFS
+					hdfs dfs -ls /dataset
+	STEP 6: View first 10 lines of Dataset
+					hdfs dfs -cat /dataset
+
+RESULT: The Dataset is sucessfully uploaded in HDFS
+
+3. USING MAPREDUCER
+*******************
+
+AIM: To execute an Mapper Reducer code
+PROCEDURE:
+	STEP 1: Install Python in Ubuntu by using the command
+						sudo apt install pythonpy
+	STEP 2: Navigate to the project directory in terminal
+	STEP 3: Create a mapper.py file and type in the following code
+						import sys
+						input for line in sys.stdin:
+  	  				line = line.strip()
+  	  				words = line.split()
+					    for word in words:
+  	      			print(word, '1', sep='\t')
+  STEP 4: Mark the mapper.py as executable
+  					chmod +x mapper.py
+  STEP 5: Create a reducer.py file and type in the following code
+	  				import sys
+						current_word = None
+						current_count = 0
+						for line in sys.stdin:
+						  line = line.strip()
+						  word, count = line.split('\t', 1)
+						  try:
+						    count = int(count)
+						  except ValueError:
+        				continue
+    					if current_word == word:
+        				current_count += count
+    					else:
+        				if current_word:
+            			print(f"{current_word}\t{current_count}")
+        				current_word = word
+        				current_count = count
+						if current_word == word:
+    				print(f"{current_word}\t{current_count}")
+
+	STEP 6:	Mark the reducer.py as executable
+						chmod +x reducer.py
+	STEP 7: Create a sample text file called wordFile.txt and type in a sample content
+						HDFS is a storage unit of Hadoop
+						MapReduce is a processing tool of Hadoop
+	STEP 8: Execute the following command
+						cat textFile.txt | pyython3 mapper.py | sort –k1, 1 | python3 reducer.py
+						
+						
+4. WORKING WITH PIG
+*******************
+
+AIM: Find the Oldest movie with 5-star rating using Pig
+PROCEDURE:
+	STEP 1: Install Pig using the following command, if not already installed
+						bash <(curl -s https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/pig-setup.sh)
+	STEP 2: Restart the Terminal
+	STEP 3: Download the dataset by using the following commands
+						URL="https://DATASET.data"
+						curl $URL
+	STEP 4: Upload the dataset into HDFS by using the following commands
+						hdfs dfs -put DATASET.data /dataset/
+	STEP 5: Open the Pig Grunt Shell by typing the command
+						pig
+	STEP 6: Load the dataset into Pig from HDFS
+						raw_movies = LOAD '/dataset/DATASET.data' USING PigStorage(',') AS (id:int, title:chararray, vote_average:float, release_year:int);
+						movies = FILTER raw_movies BY (id != 'id');
+						filtered_movies = FILTER movies BY vote_average > 8.0;
+						ordered_movies = ORDER filtered_movies BY release_year ASC;
+						oldest_movies = LIMIT ordered_movies 1;
+						DUMP oldest_movies;
+
+5. WORKING WITH HIVE
+********************
+
+AIM: Find the Most popular movie in a Database
+PROCEDURE:
+	STEP 1: Install Pig using the following command, if not already installed
+						bash <(curl -s https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/hive-setup.sh)
+	STEP 2: Restart the Terminal
+	STEP 3: Download the dataset by using the following commands
+						URL="https://DATASET.data"
+						curl $URL
+	STEP 4: Upload the dataset into HDFS by using the following commands
+						hdfs dfs -put DATASET.data /dataset/
+	STEP 5: Open the Hive Shell by typing the command
+						hive
+	STEP 6: Create a Table in HIVE by using the following commands
+						CREATE TABLE movies(
+							id INT,
+							title STRING,
+							vote_average FLOAT,
+							release_year INT
+						) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' 
+						STORED AS TEXTFILE;
+	STEP 7: Load the Dataset into the Table by using the commands
+						LOAD DATA INPATH '/dataset/moviess.csv' INTO TABLE movies;
+	STEP 8: Output the most popular movie
+						SELECT title, vote_average
+						FROM movies
+						ORDER BY vote_average DESC
+						LIMIT 10;
+
+6. INSTALLING PYSPARK
+*********************
+
+AIM: To install PySpark in Ubuntu
+PROCEDURE:
+	STEP 1: Update apt packages
+						sudo apt update -y
+	STEP 2:	Install Java, if not already installed
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/java-setup.sh"
+						bash <(curl -s $URL)
+	STEP 3: Configure SSH credentials, if not already done
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/ssh-config.sh"
+						bash <(curl -s $URL)
+	STEP 4: Install Hadoop, if not already installed
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/hadoop-setup.sh"
+						bash <(curl -s $URL)
+	STEP 5: Install Python, if not already installed
+						sudo apt install python3 python3-pip-y
+	STEP 6: Verify Python installation
+						python3 --version
+						pip3 --version
+	STEP 7: Install and Configure Apache Spark from Apache Servers
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/spark-setup.sh"
+						bash <(curl -s $URL)
+	STEP 8: Verify installation by running the command
+						spark-shell --version
+	STEP 9: Configure PySpark by running the following script
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/pyspark-config.sh"
+						bash <(curl -s $URL)
+	STEP 10:Verify installation by running the script
+						pyspark-run -c "import pyspark; print(pyspark.__version__)"
+
