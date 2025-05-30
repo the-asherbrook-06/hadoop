@@ -7,7 +7,7 @@ RED="\033[0;31m"
 NC="\033[0m"
 
 # 🔢 Prompt for Spark version
-read -p "Enter Spark version to install (e.g. 3.5.1): " SPARK_VERSION
+read -p "Enter Spark version to install (e.g. 4.0.0): " SPARK_VERSION
 SPARK_HOME=$HOME/spark-$SPARK_VERSION
 
 echo -e "${GREEN}📥 Downloading and extracting Spark $SPARK_VERSION...${NC}"
