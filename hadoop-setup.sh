@@ -124,7 +124,7 @@ else
     echo -e "${RED}⚠️ Namenode formatting skipped.${NC}"
 fi
 
-echo -e "${GREEN}✅ Using Java 17$ form installation{NC}"
+echo -e "${GREEN}✅ Using Java 17{NC}"
 echo -e "${GREEN}✅ Hadoop installation and configuration completed successfully!${NC}"
 echo -e "${GREEN}▶️ To start Hadoop services:${NC} run:"
 echo "   start-dfs.sh && start-yarn.sh"
