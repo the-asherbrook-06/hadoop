@@ -6,49 +6,37 @@ GREEN="\033[0;32m"
 RED="\033[0;31m"
 NC="\033[0m"
 
-PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-VENV_DIR="$HOME/.pyspark-venv"
-
-echo -e "${GREEN}📦 Installing python3-venv for Python $PYTHON_VERSION...${NC}"
-sudo apt update
-sudo apt install -y python$PYTHON_VERSION-venv
-
-echo -e "${GREEN}📦 Creating virtual environment at $VENV_DIR...${NC}"
-python3 -m venv "$VENV_DIR"
-
-echo -e "${GREEN}📦 Activating virtual environment and installing PySpark + Jupyter...${NC}"
-source "$VENV_DIR/bin/activate"
-pip install --upgrade pip
-pip install pyspark jupyter
-deactivate
-
-echo -e "${GREEN}🌍 Configuring PySpark environment variables in ~/.bashrc...${NC}"
-grep -q "PYSPARK_DRIVER_PYTHON" ~/.bashrc || cat <<EOL >> ~/.bashrc
-
-# PySpark Environment Variables
-export PYSPARK_DRIVER_PYTHON=jupyter
-export PYSPARK_DRIVER_PYTHON_OPTS="notebook"
-EOL
-
-# Create a launcher script for easy execution
-BIN_PATH="/usr/local/bin/pyspark-run"
-echo -e "${GREEN}⚙️  Creating global 'pyspark-run' launcher script at $BIN_PATH...${NC}"
-sudo tee "$BIN_PATH" > /dev/null <<EOF
-#!/bin/bash
-source "$VENV_DIR/bin/activate"
-if [ -z "\$1" ]; then
-    exec pyspark
-else
-    exec python3 "\$1"
+echo -e "${GREEN}🔍 Checking for python3-venv...${NC}"
+if ! dpkg -s python3-venv >/dev/null 2>&1; then
+    echo -e "${GREEN}📦 Installing python3-venv...${NC}"
+    sudo apt update
+    sudo apt install -y python3-venv
 fi
-EOF
-sudo chmod +x "$BIN_PATH"
+
+echo -e "${GREEN}📦 Creating virtual environment at ~/.pyspark-venv...${NC}"
+python3 -m venv ~/.pyspark-venv
+
+echo -e "${GREEN}🐍 Activating virtual environment and installing PySpark & Jupyter...${NC}"
+~/.pyspark-venv/bin/pip install --upgrade pip
+~/.pyspark-venv/bin/pip install pyspark jupyter
 
 echo -e "${GREEN}🧪 Verifying PySpark installation...${NC}"
-"$VENV_DIR/bin/python" -c "import pyspark; print('PySpark version:', pyspark.__version__)"
+~/.pyspark-venv/bin/python -c "import pyspark; print('PySpark version:', pyspark.__version__)"
 
-echo -e "${GREEN}✅ PySpark installation and configuration completed successfully!${NC}"
-echo -e "${GREEN}▶️ To run a PySpark script: ${NC}"
-echo -e "   pyspark-run app.py"
-echo -e "${GREEN}▶️ To launch Jupyter Notebook with PySpark: ${NC}"
-echo -e "   pyspark-run"
+echo -e "${GREEN}🚀 Creating pyspark-run helper script...${NC}"
+mkdir -p ~/.local/bin
+cat << 'EOF' > ~/.local/bin/pyspark-run
+#!/bin/bash
+~/.pyspark-venv/bin/python "$@"
+EOF
+chmod +x ~/.local/bin/pyspark-run
+
+# Add ~/.local/bin to PATH if not already
+if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+echo -e "${GREEN}✅ PySpark virtual environment setup complete!${NC}"
+echo -e "${GREEN}▶️ You can now run PySpark scripts globally using:${NC}"
+echo "   pyspark-run app.py"
