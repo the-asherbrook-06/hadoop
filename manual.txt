@@ -179,10 +179,13 @@ PROCEDURE:
 						bash <(curl -s $URL)
 	STEP 8: Verify installation by running the command
 						spark-shell --version
-	STEP 9: Configure PySpark by running the following script
+	STEP 9: Configure Spark path by running the following script
+						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/spark-path-setup.sh"
+						bash <(curl -s $URL)
+	STEP 10:Configure PySpark by running the following script
 						URL="https://raw.githubusercontent.com/the-asherbrook-06/hadoop/main/pyspark-config.sh"
 						bash <(curl -s $URL)
-	STEP 10:Verify installation by running the script
+	STEP 11:Verify installation by running the script
 						pyspark-run -c "import pyspark; print(pyspark.__version__)"
 
 7. WORKING WITH PYSPARK TO LOAD RDD
@@ -228,5 +231,36 @@ PROCEDURE:
 						
 						print("Sampled RDD: ", sample_rdd.collect())
 						print("Filtered RDD: ", sample_rdd.filter(lambda x: x%2 == 0))
+	STEP 5: Run the file by using the command
+						pyspark-run app.py
+
+
+9. WORKING WITH PYSPARK TO SPLIT DATASET AND CREATE NEW COMBINATIONS
+********************************************************************
+
+AIM: To load an RDD into PySpark and perform dataset splitting and combination creation
+PROCEDURE:
+	STEP 1: Install PySpark if not installed earlier
+	STEP 2: Navigate to the project folder in terminal
+	STEP 3: Create an Python script file by using the following command
+						touch app.py
+	STEP 4: Type in the following python code into app.py
+						from pyspark.sql import SparkSession
+						spark = SparkSession.builder().appName("AppName").getOrCreate()
+						
+						data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+						rdd = spark.sparkContext.parallelize(data)
+						
+						even_rdd = rdd.filter(lambda x: x%2 == 0)
+						odd_rdd = rdd.filter(lambda x: x%2 == 1)
+						
+						combined_rdd = even_rdd.union(odd_rdd)
+						squared_rdd = combined_rdd.map(lambda x: x**2)
+						
+						print("RDD: ", rdd.collect())
+						print("Even RDD: ", even_rdd.collect())
+						print("Odd RDD: ", odd_rdd.collect())
+						print("Combined RDD: ", combined_rdd.collect())
+						print("Squared RDD: ", squared_rdd.collect())
 	STEP 5: Run the file by using the command
 						pyspark-run app.py
