@@ -185,3 +185,48 @@ PROCEDURE:
 	STEP 10:Verify installation by running the script
 						pyspark-run -c "import pyspark; print(pyspark.__version__)"
 
+7. WORKING WITH PYSPARK TO LOAD RDD
+***********************************
+
+AIM: To load an RDD into PySpark and perfrom RDD operations
+PROCEDURE:
+	STEP 1: Install PySpark if not installed earlier
+	STEP 2: Navigate to the project folder in terminal
+	STEP 3: Create an Python script file by using the following command
+						touch app.py
+	STEP 4: Type in the following python code into app.py
+						from pyspark.sql import SparkSession
+						spark = SparkSession.builder.appName("AppName").GetOrCreate()
+						
+						data = [1, 2, 3, 4, 5]
+						rdd = spark.sparkContext.parallelize(data)
+						rdd_mapped = rdd.map(lambda x: x**2)
+						
+						print("Mapped RDD: ", rdd_mapped.collect())
+						print("Count of Elements in RDD: ", rdd_mapped.count())
+						print("First 3 Elements in RDD: ", rdd.take(3))
+	STEP 5: Run the file by using the command
+						pyspark-run app.py
+						
+						
+8. WORKING WITH PYSPARK TO FILTER RDD
+***********************************
+
+AIM: To load an RDD into PySpark and perfrom sampling/filtering
+PROCEDURE:
+	STEP 1: Install PySpark if not installed earlier
+	STEP 2: Navigate to the project folder in terminal
+	STEP 3: Create an Python script file by using the following command
+						touch app.py
+	STEP 4: Type in the following python code into app.py
+						from pyspark.sql import SparkSession
+						spark = SparkSession.builder().appName("AppName").getOrCreate()
+						
+						data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+						rdd = spark.sparkContext.parallelize(data)
+						sample_rdd = rdd.sample(withReplacement=False, fraction=0.4, seed=100)
+						
+						print("Sampled RDD: ", sample_rdd.collect())
+						print("Filtered RDD: ", sample_rdd.filter(lambda x: x%2 == 0))
+	STEP 5: Run the file by using the command
+						pyspark-run app.py
